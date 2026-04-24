@@ -1,0 +1,25 @@
+<!-- blog/templates/blog/search.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}搜索结果 · Lily's Wonderland{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">🔍 搜索 "{{ query }}"</h2>
+{% if results %}
+    <p>找到 {{ results|length }} 篇相关文章：</p>
+    <div class="list-group">
+        {% for article in results %}
+        <a href="{% url 'article_detail' article.id %}" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ article.title }}</h5>
+                <small>{{ article.created_at|date:"Y-m-d" }}</small>
+            </div>
+            <p class="mb-1 text-muted">{{ article.summary|default:article.content|truncatechars:100 }}</p>
+            <span class="badge bg-secondary">{{ article.get_category_display_cn }}</span>
+        </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-warning">没有找到相关文章，试试其他关键词吧。</div>
+{% endif %}
+{% endblock %}

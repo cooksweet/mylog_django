@@ -1,0 +1,61 @@
+<!-- blog/templates/blog/detail.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ article.title }} · Lily's Wonderland{% endblock %}
+
+{% block content %}
+<article class="bg-white p-4 rounded shadow-sm">
+    <h1 class="display-5">{{ article.title }}</h1>
+    <div class="text-muted mb-3">
+        <span class="badge bg-secondary">{{ article.get_category_display_cn }}</span>
+        <i class="bi bi-calendar ms-3"></i> {{ article.created_at|date:"Y-m-d H:i" }}
+    </div>
+    {% if article.image %}
+    <img src="{{ article.image.url }}" class="img-fluid rounded mb-4" alt="{{ article.title }}">
+    {% endif %}
+    <div class="content fs-6 lh-lg">
+        {{ article.content|safe }}
+    </div>
+    <hr>
+    <a href="{% url 'index' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> 返回主页</a>
+</article>
+<hr>
+<!-- 评论区域 -->
+<section id="comments-section" class="mt-5">
+    <h3 class="mb-3"><i class="bi bi-chat-dots"></i> 评论 ({{ comments.count }})</h3>
+
+    <!-- 评论列表 -->
+    {% for comment in comments %}
+    <div class="card mb-2 border-0 shadow-sm">
+        <div class="card-body py-2">
+            <div class="d-flex justify-content-between">
+                <strong>{{ comment.author }}</strong>
+                <small class="text-muted">{{ comment.created|date:"Y-m-d H:i" }}</small>
+            </div>
+            <p class="mb-0 mt-1">{{ comment.body|linebreaksbr }}</p>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">暂无评论，快来抢沙发！</p>
+    {% endfor %}
+
+    <!-- 评论提交表单 -->
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body">
+            <h5 class="card-title">发表评论</h5>
+            <form method="post" action="{% url 'article_detail' article.id %}#comments-section">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.author.id_for_label }}" class="form-label">昵称</label>
+                    {{ form.author }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.body.id_for_label }}" class="form-label">评论内容</label>
+                    {{ form.body }}
+                </div>
+                <button type="submit" class="btn btn-primary">提交评论</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

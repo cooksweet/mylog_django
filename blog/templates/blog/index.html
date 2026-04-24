@@ -1,0 +1,134 @@
+<!-- blog/templates/blog/index.html -->
+{% extends 'blog/base.html' %}
+{% load static %}
+
+{% block title %}BOB's Wonderland - 主页{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- 左侧边栏：分类导航 + 个人简介 -->
+    <div class="col-lg-3">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white fw-bold">📌 探索</div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'category' 'life' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-heart-fill text-danger me-2"></i>生活
+                </a>
+                <a href="{% url 'category' 'learning' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-book-fill text-primary me-2"></i>学习
+                </a>
+                <a href="{% url 'category' 'reflection' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-chat-quote-fill text-info me-2"></i>感悟
+                </a>
+                <a href="{% url 'category' 'travel' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-airplane-fill text-success me-2"></i>旅游
+                </a>
+            </div>
+        </div>
+        <!-- 简单个人简介 -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <img src="../../static/blog/logo_transparent.png" class="rounded-circle mb-3" alt="头像">
+                <h5 class="card-title">Bob xie</h5>
+                <p class="text-muted small">热爱生活、摄影与写作<br>记录旅途中的点滴美好</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧主内容区：日期、精选文章、日历 -->
+    <div class="col-lg-9">
+        <!-- 日期显示行 -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 fw-light">
+        <span class="fw-bold">{{ current_date|date:"l" }}</span>, {{ current_date|date:"Y年m月d日" }}
+    </h2>
+    <div class="d-flex align-items-center">
+        <!-- 天气显示 -->
+        <span class="badge bg-warning text-dark me-2 p-2">
+            <img src= ../../static/QWeather-Icons-1.8.0/icons/101.svg  style="width: 24px; height: 24px;">
+            {{ weather_desc }} {{ temperature }}°C  七星区
+        </span>
+        <!-- 电子时钟 -->
+        <span class="badge bg-dark text-white p-2" id="liveClock">--:--:--</span>
+    </div>
+</div>
+
+        <!-- 精选文章卡片（图片风格参考） -->
+        <h4 class="border-start border-4 border-info ps-3 mb-3">✨ 最新故事</h4>
+        <div class="row g-4 mb-4">
+            {% for article in recent_articles %}
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    {% if article.image %}
+                    <img src="{{ article.image.url }}" class="card-img-top" alt="{{ article.title }}" style="height: 180px; object-fit: cover;">
+                    {% else %}
+                    <img src="https://via.placeholder.com/400x180?text=No+Image" class="card-img-top" alt="占位图">
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-secondary mb-2">{{ article.get_category_display_cn }}</span>
+                        <h5 class="card-title">{{ article.title }}</h5>
+                        <p class="card-text text-muted small">{{ article.summary|default:article.content|striptags|truncatechars:60 }}</p>
+                    </div>
+                    <div class="card-footer bg-white border-0">
+                        <a href="{% url 'article_detail' article.id %}" class="btn btn-sm btn-outline-primary">阅读更多 →</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12"><p class="text-muted">暂无文章，快去后台添加吧！</p></div>
+            {% endfor %}
+        </div>
+
+        <!-- 动态日历 -->
+    <div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-white fw-bold">📅 {{ calendar_month_name }}</div>
+    <div class="card-body p-2">
+        <table class="table table-bordered text-center small mb-0">
+            <thead>
+                <tr>
+                    <th class="text-danger">日</th>
+                    <th>一</th><th>二</th><th>三</th><th>四</th><th>五</th>
+                    <th class="text-primary">六</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in calendar_weeks %}
+                <tr>
+                    {% for day in week %}
+                        {% if day == 0 %}
+                            <td class="text-muted"></td>
+                        {% else %}
+                            {% if day == today %}
+                                <td class="bg-info text-white fw-bold">{{ day }}</td>
+                            {% else %}
+                                <td>{{ day }}</td>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p class="text-muted small mt-2 mb-0">⭐ 今日无事，适合写作</p>
+    </div>
+</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 可添加一些前端交互
+    console.log("主页加载完成");
+    // 电子时钟实时更新
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('liveClock').textContent = `${hours}:${minutes}:${seconds}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+</script>
+{% endblock %}
